@@ -28,5 +28,13 @@ public class Constants {
 
         public static final double moveSpeed = 0.25;
         public static final double turnSpeed = 0.25;
+
+public class Constants {
+    public static final class Drivetrain {
+        // TODO: measure
+        public static final Translation2d frontLeftWheelMeters = new Translation2d();
+        public static final Translation2d frontRightWheelMeters = new Translation2d();
+        public static final Translation2d backLeftWheelMeters = new Translation2d();
+        public static final Translation2d backRightWheelMeters = new Translation2d();
     }
 }

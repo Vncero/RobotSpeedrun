@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveOdometry;
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -65,16 +66,29 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        MecanumDriveWheelSpeeds speeds = new MecanumDriveWheelSpeeds(
+                this.frontLeft.getRate(),
+                this.frontRight.getRate(),
+                this.backLeft.getRate(),
+                this.backRight.getRate()
+        );
+        Rotation2d heading = Rotation2d.fromDegrees(getHeadingDegrees());
+
+        this.odometry.updateWithTime(this.timer.time(), heading, speeds);
 
     }
 
     public double getHeading() {
-        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS); // TODO: may need a negative to ensure CCW-positive
+    }
+
+    public double getHeadingDegrees() {
+        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES); // TODO: may need a negative to ensure CCW-positive
     }
 
     public Command teleopDrive(GamepadEx gamepad) {
         return new RunCommand(
-            () -> this.drive.driveFieldCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), 0),
+            () -> this.drive.driveFieldCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), getHeadingDegrees()),
             this
         );
     }

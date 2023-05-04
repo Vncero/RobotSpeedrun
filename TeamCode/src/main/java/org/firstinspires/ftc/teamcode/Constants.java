@@ -5,19 +5,25 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics
 
 public class Constants {
 
-    public static class Drivebase {
+    public static class Drivetrain {
 
-        public static final double trackwidth = 0.5;
-        public static final double wheelbase = 0.5;
+        // TODO: do
+        public static final double trackwidth = 0;
+        public static final double wheelbase = 0;
 
-        public static final double realTrackwidth = 0.6; // the actual dimensions of robot
-        public static final double realWheelbase = 0.6;
+        public static final double realTrackwidth = 0; // the actual dimensions of robot
+        public static final double realWheelbase = 0; // the actual dimensions of robot
+
+        public static final Translation2d frontLeftWheelMeters = new Translation2d(trackwidth, wheelbase);
+        public static final Translation2d frontRightWheelMeters = new Translation2d(trackwidth, -wheelbase);
+        public static final Translation2d backLeftWheelMeters = new Translation2d(-trackwidth, wheelbase);
+        public static final Translation2d backRightWheelMeters = new Translation2d(-trackwidth, -wheelbase);
 
         public static final MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
-                new Translation2d(trackwidth, wheelbase),
-                new Translation2d(trackwidth, -wheelbase),
-                new Translation2d(-trackwidth, wheelbase),
-                new Translation2d(-trackwidth, -wheelbase)
+                frontLeftWheelMeters,
+                frontRightWheelMeters,
+                backLeftWheelMeters,
+                backRightWheelMeters
         );
     }
 
@@ -28,13 +34,5 @@ public class Constants {
 
         public static final double moveSpeed = 0.25;
         public static final double turnSpeed = 0.25;
-
-public class Constants {
-    public static final class Drivetrain {
-        // TODO: measure
-        public static final Translation2d frontLeftWheelMeters = new Translation2d();
-        public static final Translation2d frontRightWheelMeters = new Translation2d();
-        public static final Translation2d backLeftWheelMeters = new Translation2d();
-        public static final Translation2d backRightWheelMeters = new Translation2d();
     }
 }

@@ -57,7 +57,7 @@ public class PathGenerator {
     public static Path generatePath(AutoParkPosition parkPosition, Side side) {
         Path p = new Path();
         p.add(generalWaypoint(new Pose2d( // initial position
-                new Translation2d(Constants.Drivebase.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
+                new Translation2d(Constants.Drivetrain.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
                 new Rotation2d()
         )));
 
@@ -69,12 +69,12 @@ public class PathGenerator {
         for (int i = 0; i < 3; i++) {
 
             p.add(generalWaypoint(new Pose2d( // going to get cone
-                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivebase.realWheelbase / 2 * side.getMultiplier()),
+                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
                     Rotation2d.fromDegrees(90 * side.getMultiplier())
             )));
 
             p.add(interruptWaypoint(new Pose2d( // get cone
-                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivebase.realWheelbase / 2 * side.getMultiplier()),
+                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
                     Rotation2d.fromDegrees(90 * side.getMultiplier())
             ), () -> {
                 // get cone

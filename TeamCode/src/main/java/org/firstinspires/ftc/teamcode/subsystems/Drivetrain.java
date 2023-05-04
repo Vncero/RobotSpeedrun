@@ -100,6 +100,10 @@ public class Drivetrain extends SubsystemBase {
         );
     }
 
+    public void setMode(DriveMode mode) {
+        this.mode = mode;
+    }
+
     public MotorEx getFrontLeft() {
         return frontLeft;
     }

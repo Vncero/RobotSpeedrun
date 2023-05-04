@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.Robot;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -25,6 +26,9 @@ public class CommandRobot extends Robot {
         register(drivetrain);
 
         // bind commands
-
+        new Trigger(() -> driverGamepad.left_trigger > 0.5)
+                .whenActive(() -> drivetrain.setMode(Drivetrain.DriveMode.SLOW))
+                .whenInactive(() -> drivetrain.setMode(Drivetrain.DriveMode.NORMAL));
+        
     }
 }

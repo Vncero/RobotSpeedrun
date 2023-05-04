@@ -20,8 +20,8 @@ public class TeleOpMode extends CommandOpMode {
         //DcMotorEx motorBackRight = hardwareMap.dcMotorEx.get("backRight");
 
         
-        arm = hardwareMap.dcMotorEx.get("arm");
-        intake = hardwareMap.getController("intake");
+        DcmotorEx arm = hardwareMap.dcMotorEx.get("arm");
+        Servo intake = hardwareMap.getController("intake");
 
         // // Reverse the right side motors
         // motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);

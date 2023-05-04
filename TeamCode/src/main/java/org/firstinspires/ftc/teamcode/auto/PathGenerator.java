@@ -1,5 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.MecanumControllerCommand;
+import com.arcrobotics.ftclib.command.OdometrySubsystem;
+import com.arcrobotics.ftclib.command.PurePursuitCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
@@ -10,9 +18,14 @@ import com.arcrobotics.ftclib.purepursuit.waypoints.EndWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.GeneralWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.InterruptWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.PointTurnWaypoint;
+import com.arcrobotics.ftclib.purepursuit.waypoints.StartWaypoint;
+import com.arcrobotics.ftclib.trajectory.Trajectory;
+import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.Units;
+
 
 public class PathGenerator {
     private static Waypoint pointTurnWaypoint(Pose2d pose) {
@@ -23,6 +36,10 @@ public class PathGenerator {
                 Constants.Trajectory.positionBuffer,
                 Constants.Trajectory.angleBuffer
         );
+    }
+
+    private static Waypoint startWaypoint(Pose2d pose) {
+        return new StartWaypoint(pose);
     }
 
     private static Waypoint generalWaypoint(Pose2d pose) {
@@ -54,9 +71,35 @@ public class PathGenerator {
         );
     }
 
+    // pure pursuit fails, use this
+    public static MecanumControllerCommand generateMecanumCommand(Drivetrain drivetrain, Trajectory trajectory, Pose2d desiredPose) {
+        return new MecanumControllerCommand(
+                trajectory,
+                () -> desiredPose,
+                Constants.Drivetrain.kinematics,
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
+                new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI)),
+        1.0,
+                (speeds) -> {
+                    drivetrain.getFrontLeft().motorEx.setVelocity(speeds.frontLeftMetersPerSecond); // TODO: figure out conversion from m/s to ticks/sec
+                    drivetrain.getFrontRight().motorEx.setVelocity(speeds.frontRightMetersPerSecond);
+                    drivetrain.getBackLeft().motorEx.setVelocity(speeds.rearLeftMetersPerSecond);
+                    drivetrain.getBackRight().motorEx.setVelocity(speeds.rearRightMetersPerSecond);
+                }
+        );
+    }
+
+    // TODO: do this
+//    public static Command generatePurePursuitCommand(MecanumDrive drive, OdometrySubsystem odometry, AutoParkPosition parkPosition, Side side) {
+//        Path p = generatePath(parkPosition, side);
+//        p.init();
+//        return new PurePursuitCommand(drive, odometry, p.toArray());
+//    }
+
     public static Path generatePath(AutoParkPosition parkPosition, Side side) {
         Path p = new Path();
-        p.add(generalWaypoint(new Pose2d( // initial position
+        p.add(startWaypoint(new Pose2d( // initial position
                 new Translation2d(Constants.Drivetrain.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
                 new Rotation2d()
         )));
@@ -92,6 +135,7 @@ public class PathGenerator {
                 // score high
             }));
         }
+        p.add(endWaypoint(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)))); // TODO: change to parkPosition
 
         switch (parkPosition) {
             case ONE:

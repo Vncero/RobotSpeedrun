@@ -92,4 +92,20 @@ public class Drivetrain extends SubsystemBase {
             this
         );
     }
+
+    public MotorEx getFrontLeft() {
+        return frontLeft;
+    }
+
+    public MotorEx getFrontRight() {
+        return frontRight;
+    }
+
+    public MotorEx getBackLeft() {
+        return backLeft;
+    }
+
+    public MotorEx getBackRight() {
+        return backRight;
+    }
 }

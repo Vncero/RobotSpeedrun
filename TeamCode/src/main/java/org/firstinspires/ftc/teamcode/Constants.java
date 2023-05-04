@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 
+import org.firstinspires.ftc.teamcode.util.Units;
+
 public class Constants {
 
     public static class Drivetrain {
@@ -13,6 +15,14 @@ public class Constants {
 
         public static final double realTrackwidth = 0; // the actual dimensions of robot
         public static final double realWheelbase = 0; // the actual dimensions of robot
+
+        public static final double ticksPerMotorRotation = 537.7;
+
+        public static final double wheelDiameterMeters = Units.inchesToMeters(3.77953);
+
+        public static final double gearReduction = 1;
+
+        public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (wheelDiameterMeters * Math.PI);
 
         public static final Translation2d frontLeftWheelMeters = new Translation2d(trackwidth, wheelbase);
         public static final Translation2d frontRightWheelMeters = new Translation2d(trackwidth, -wheelbase);

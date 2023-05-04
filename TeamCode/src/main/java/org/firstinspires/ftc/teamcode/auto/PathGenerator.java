@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.geometry.Translation2d;
+import com.arcrobotics.ftclib.kinematics.Odometry;
 import com.arcrobotics.ftclib.purepursuit.Path;
 import com.arcrobotics.ftclib.purepursuit.Waypoint;
 import com.arcrobotics.ftclib.purepursuit.actions.InterruptAction;
@@ -23,8 +24,12 @@ import com.arcrobotics.ftclib.trajectory.Trajectory;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.FollowPathsCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.Units;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class PathGenerator {
@@ -82,23 +87,22 @@ public class PathGenerator {
                 new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI)),
         1.0,
                 (speeds) -> {
-                    drivetrain.getFrontLeft().motorEx.setVelocity(speeds.frontLeftMetersPerSecond); // TODO: figure out conversion from m/s to ticks/sec
-                    drivetrain.getFrontRight().motorEx.setVelocity(speeds.frontRightMetersPerSecond);
-                    drivetrain.getBackLeft().motorEx.setVelocity(speeds.rearLeftMetersPerSecond);
-                    drivetrain.getBackRight().motorEx.setVelocity(speeds.rearRightMetersPerSecond);
+                    drivetrain.getFrontLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontLeftMetersPerSecond)); // TODO: figure out conversion from m/s to ticks/sec
+                    drivetrain.getFrontRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontRightMetersPerSecond));
+                    drivetrain.getBackLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearLeftMetersPerSecond));
+                    drivetrain.getBackRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearRightMetersPerSecond));
                 }
         );
     }
 
-    // TODO: do this
-//    public static Command generatePurePursuitCommand(MecanumDrive drive, OdometrySubsystem odometry, AutoParkPosition parkPosition, Side side) {
-//        Path p = generatePath(parkPosition, side);
-//        p.init();
-//        return new PurePursuitCommand(drive, odometry, p.toArray());
-//    }
+    public static Command generatePursuitCommand(MecanumDrive drive, Odometry odometry, AutoParkPosition parkPosition, Side side) {
+        return new FollowPathsCommand(drive,odometry, generatePath(parkPosition, side));
+    }
 
-    public static Path generatePath(AutoParkPosition parkPosition, Side side) {
+    public static List<Path> generatePath(AutoParkPosition parkPosition, Side side) {
+        List<Path> paths = new ArrayList<>();
         Path p = new Path();
+        paths.add(p);
         p.add(startWaypoint(new Pose2d( // initial position
                 new Translation2d(Constants.Drivetrain.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
                 new Rotation2d()
@@ -109,40 +113,42 @@ public class PathGenerator {
                 Rotation2d.fromDegrees(90 * side.getMultiplier())
         )));
 
-        for (int i = 0; i < 3; i++) {
+        p.add(endWaypoint(new Pose2d( // going to get cone
+                new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
+                Rotation2d.fromDegrees(90 * side.getMultiplier())
+        )));
 
-            p.add(generalWaypoint(new Pose2d( // going to get cone
-                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
-                    Rotation2d.fromDegrees(90 * side.getMultiplier())
-            )));
+//        for (int i = 0; i < 3; i++) {
 
-            p.add(interruptWaypoint(new Pose2d( // get cone
-                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
-                    Rotation2d.fromDegrees(90 * side.getMultiplier())
-            ), () -> {
-                // get cone
-            }));
 
-            p.add(generalWaypoint(new Pose2d( // going to score (high)
-                    new Translation2d(Units.tilesToMeters(2.75), -Units.tilesToMeters(1.75) * side.getMultiplier()),
-                    Rotation2d.fromDegrees(-45 * side.getMultiplier())
-            )));
 
-            p.add(interruptWaypoint(new Pose2d( // scoring (high)
-                    new Translation2d(Units.tilesToMeters(2.75), -Units.tilesToMeters(1.75) * side.getMultiplier()),
-                    Rotation2d.fromDegrees(-45 * side.getMultiplier())
-            ), () -> {
-                // score high
-            }));
-        }
-        p.add(endWaypoint(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)))); // TODO: change to parkPosition
+//            p.add(interruptWaypoint(new Pose2d( // get cone
+//                    new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
+//                    Rotation2d.fromDegrees(90 * side.getMultiplier())
+//            ), () -> {
+//                // get cone
+//            }));
+//
+//            p.add(generalWaypoint(new Pose2d( // going to score (high)
+//                    new Translation2d(Units.tilesToMeters(2.75), -Units.tilesToMeters(1.75) * side.getMultiplier()),
+//                    Rotation2d.fromDegrees(-45 * side.getMultiplier())
+//            )));
+//
+//            p.add(interruptWaypoint(new Pose2d( // scoring (high)
+//                    new Translation2d(Units.tilesToMeters(2.75), -Units.tilesToMeters(1.75) * side.getMultiplier()),
+//                    Rotation2d.fromDegrees(-45 * side.getMultiplier())
+//            ), () -> {
+//                // score high
+//            }));
+//        }
+//        p.add(endWaypoint(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)))); // TODO: change to parkPosition
 
         switch (parkPosition) {
             case ONE:
                 // TODO:  program this; its slightly harder to use multipliers
         }
 
-        return p;
+        return paths;
     }
 
     public enum AutoParkPosition {

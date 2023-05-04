@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.MecanumControllerCommand;
 import com.arcrobotics.ftclib.command.OdometrySubsystem;
 import com.arcrobotics.ftclib.command.PurePursuitCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
@@ -25,6 +26,7 @@ import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.FollowPathsCommand;
+import org.firstinspires.ftc.teamcode.commands.InterruptCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.util.Units;
 
@@ -117,6 +119,16 @@ public class PathGenerator {
                 new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
                 Rotation2d.fromDegrees(90 * side.getMultiplier())
         )));
+
+        p.add(interruptWaypoint(new Pose2d(
+                new Translation2d(),
+                new Rotation2d()
+        ), new InterruptCommand() {
+            @Override
+            public void execute() {
+
+            }
+        }));
 
 //        for (int i = 0; i < 3; i++) {
 

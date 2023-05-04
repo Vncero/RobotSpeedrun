@@ -34,6 +34,8 @@ public class Drivetrain extends SubsystemBase {
     private final MecanumDriveOdometry odometry;
     private final MecanumDriveKinematics kinematics;
 
+    private DriveMode mode = DriveMode.NORMAL;
+
     public Drivetrain(HardwareMap hardwareMap) {
         this.frontLeft = new MotorEx(hardwareMap, "FrontLeft", Motor.GoBILDA.RPM_312);
         this.frontRight = new MotorEx(hardwareMap, "FrontRight", Motor.GoBILDA.RPM_312);
@@ -51,6 +53,11 @@ public class Drivetrain extends SubsystemBase {
                 )
             )
         );
+
+        this.frontLeft.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
+        this.frontRight.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
+        this.backLeft.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
+        this.backRight.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
 
         this.drive = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         this.kinematics = new MecanumDriveKinematics(
@@ -88,7 +95,7 @@ public class Drivetrain extends SubsystemBase {
 
     public Command teleopDrive(GamepadEx gamepad) {
         return new RunCommand(
-            () -> this.drive.driveFieldCentric(gamepad.getLeftX(), gamepad.getLeftY(), gamepad.getRightX(), getHeadingDegrees()),
+            () -> this.drive.driveFieldCentric(gamepad.getLeftX() * mode.multiplier, gamepad.getLeftY() * mode.multiplier, gamepad.getRightX() * mode.multiplier, getHeadingDegrees()),
             this
         );
     }
@@ -107,5 +114,19 @@ public class Drivetrain extends SubsystemBase {
 
     public MotorEx getBackRight() {
         return backRight;
+    }
+
+    public enum DriveMode {
+        NORMAL(1),
+        SLOW(0.5);
+
+        private final double multiplier;
+        DriveMode(double multiplier) {
+            this.multiplier = multiplier;
+        }
+
+        public double getMultiplier() {
+            return multiplier;
+        }
     }
 }

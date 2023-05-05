@@ -29,6 +29,6 @@ public class CommandRobot extends Robot {
         new Trigger(() -> driverGamepad.left_trigger > 0.5)
                 .whenActive(() -> drivetrain.setMode(Drivetrain.DriveMode.SLOW))
                 .whenInactive(() -> drivetrain.setMode(Drivetrain.DriveMode.NORMAL));
-        
+
     }
 }

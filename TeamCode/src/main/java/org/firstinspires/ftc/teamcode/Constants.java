@@ -23,6 +23,7 @@ public class Constants {
         public static final double gearReduction = 1;
 
         public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (wheelDiameterMeters * Math.PI);
+        public static final double metersPerTick = 1/ticksPerMeter;
 
         public static final Translation2d frontLeftWheelMeters = new Translation2d(trackwidth, wheelbase);
         public static final Translation2d frontRightWheelMeters = new Translation2d(trackwidth, -wheelbase);
@@ -35,6 +36,17 @@ public class Constants {
                 backLeftWheelMeters,
                 backRightWheelMeters
         );
+    }
+
+    public static class LinearSlide {
+        public static final double ticksPerMotorRotation = 537.7;
+
+        public static final double spoolDiameter = Units.inchesToMeters(1.75);
+
+        public static final double gearReduction = 1;
+
+        public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (spoolDiameter * Math.PI);
+        public static final double metersPerTick = 1/ticksPerMeter;
     }
 
     public static class Trajectory {

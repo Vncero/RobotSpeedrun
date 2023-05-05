@@ -46,12 +46,12 @@ public class Drivetrain extends SubsystemBase {
         this.gyro = hardwareMap.get(IMU.class, "imu");
 
         gyro.initialize(
-            new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                        RevHubOrientationOnRobot.UsbFacingDirection.RIGHT // TODO: confirm
+                new IMU.Parameters(
+                        new RevHubOrientationOnRobot(
+                                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT // TODO: confirm
+                        )
                 )
-            )
         );
 
         this.frontLeft.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
@@ -95,8 +95,8 @@ public class Drivetrain extends SubsystemBase {
 
     public Command teleopDrive(GamepadEx gamepad) {
         return new RunCommand(
-            () -> this.drive.driveFieldCentric(gamepad.getLeftX() * mode.multiplier, gamepad.getLeftY() * mode.multiplier, gamepad.getRightX() * mode.multiplier, getHeadingDegrees()),
-            this
+                () -> this.drive.driveFieldCentric(gamepad.getLeftX() * mode.multiplier, gamepad.getLeftY() * mode.multiplier, gamepad.getRightX() * mode.multiplier, getHeadingDegrees()),
+                this
         );
     }
 

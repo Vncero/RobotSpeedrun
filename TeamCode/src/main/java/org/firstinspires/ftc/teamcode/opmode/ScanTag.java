@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagDetectionPipeline;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -153,6 +154,8 @@ public class ScanTag extends LinearOpMode
          * during the init loop.
          */
 
+        waitForStart();
+
         /* Update the telemetry */
         if(tagOfInterest != null)
         {
@@ -168,20 +171,17 @@ public class ScanTag extends LinearOpMode
 
         /* Actually do something useful */
         if( tagOfInterest.id == LEFT){
-            tagID = LEFT;
+
         }
         else if (tagOfInterest.id == MID){
-            tagID = MID;
+
         }
         else if (tagOfInterest.id == RIGHT){
-            tagID = RIGHT;
+
         }
         else{
-            tagID = LEFT;
-        }
 
-        /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {sleep(20);}
+        }
     }
 
     void tagToTelemetry(AprilTagDetection detection)

@@ -14,6 +14,7 @@ import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.ftccommon.FtcRobotControllerSettingsActivity;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 
@@ -36,6 +37,8 @@ public class Lift extends SubsystemBase {
 
     public double flipperPosition = 0;
 
+    public double flipperPower = -0.03;
+
     public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
         this.slide = new MotorEx(hardwareMap, "slide", Motor.GoBILDA.RPM_435);
         this.flipper = new MotorEx(hardwareMap, "flipper", Motor.GoBILDA.RPM_312);
@@ -48,8 +51,8 @@ public class Lift extends SubsystemBase {
         this.slide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         this.flipper.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        slide.setPositionTolerance(25); // ticks
-        flipper.setPositionTolerance(25); // ticks
+        slide.setPositionTolerance(10); // ticks
+        flipper.setPositionTolerance(10); // ticks
 
         slide.setPositionCoefficient(Constants.LinearSlide.slideKP);
 
@@ -66,6 +69,7 @@ public class Lift extends SubsystemBase {
         this.flipper.setRunMode(Motor.RunMode.PositionControl);
         this.flipper.setPositionCoefficient(Constants.LinearSlide.flipperKP);
         this.flipper.resetEncoder();
+        this.setPosition(0, Constants.LinearSlide.FlipperPosition.DOWN);
     }
 
     public double getSlidePosition() {
@@ -114,7 +118,17 @@ public class Lift extends SubsystemBase {
         targetSlide = slide;
         this.slide.setTargetDistance(slide);
         this.flipperPosition = flipperPosition.getPosition();
+
+        if(flipperPosition == Constants.LinearSlide.FlipperPosition.UP){
+            flipperPower = -0.25;
+        }
+        else{
+            flipperPower = -0.05;
+        }
+
         this.flipper.setTargetDistance(flipperPosition.getPosition());
+
+
     }
 
     public void resetLift() {
@@ -141,17 +155,10 @@ public class Lift extends SubsystemBase {
 //    public double getFlipperOutput(){
 //        return this.flipper.get
 //    }
-    public void setFlipperPower(){
-        flipper.set(0.03);
-    }
-
-    public void setFlipperPowerR(){
-        flipper.set(-0.03);
-    }
 
     @Override
     public void periodic() {
         slide.set(0.15);
-        flipper.set(-0.05);
+        flipper.set(flipperPower);
     }
 }

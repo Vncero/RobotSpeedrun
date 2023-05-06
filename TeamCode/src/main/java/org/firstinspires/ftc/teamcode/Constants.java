@@ -52,7 +52,7 @@ public class Constants {
         public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (spoolDiameter * Math.PI);
         public static final double metersPerTick = 1/ticksPerMeter;
 
-        public static double flipperKP = 0.0009;
+        public static double flipperKP = 0.01;
 
         public static double slideKP = 0.05;
         public static double slideKI = 0;

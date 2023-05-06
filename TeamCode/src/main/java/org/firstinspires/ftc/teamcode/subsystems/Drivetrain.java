@@ -148,6 +148,10 @@ public class Drivetrain extends SubsystemBase {
         return gyro;
     }
 
+    public void forward(double meters){
+
+    }
+
     public enum DriveMode {
         NORMAL(0.75),
         SLOW(0.5);

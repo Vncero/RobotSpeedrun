@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ProfiledPIDCommand;
+import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
 import com.arcrobotics.ftclib.hardware.ServoEx;
@@ -10,52 +11,124 @@ import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.util.MathUtils;
+import com.qualcomm.ftccommon.FtcRobotControllerSettingsActivity;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 
+import java.util.function.Supplier;
+
 public class Lift extends SubsystemBase {
-    private MotorEx slide;
+    private final MotorEx slide;
 
-    private ServoEx flipper;
+    private final MotorEx flipper;
 
-    private MotorEx intake;
+//    private final ServoEx intake;
 
-    private ProfiledPIDController controller;
+    public double power;
 
-    public Lift(HardwareMap hardwareMap) {
+    private final ProfiledPIDController controller;
+
+    private Telemetry telemetry;
+
+    public double targetSlide = 0;
+
+    public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
         this.slide = new MotorEx(hardwareMap, "slide", Motor.GoBILDA.RPM_435);
-        this.flipper = new SimpleServo(hardwareMap, "flipper", 0, 1);
-        this.intake = new MotorEx(hardwareMap, "intake");
+        this.flipper = new MotorEx(hardwareMap, "flipper", Motor.GoBILDA.RPM_312);
+        this.telemetry = telemetry;
+//        this.intake = new SimpleServo(hardwareMap, "intake", 0, 360);
 
-        slide.setDistancePerPulse(Constants.LinearSlide.metersPerTick);
+        slide.setDistancePerPulse(Constants.LinearSlide.metersPerTick*100);
+//        flipper.setDistancePerPulse()
+
+        this.slide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        this.flipper.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+        slide.setPositionTolerance(2); // centimeters
+        flipper.setPositionTolerance(2); // ticks
+
+        slide.setPositionCoefficient(Constants.LinearSlide.slideKP);
+
+        this.controller = new ProfiledPIDController(
+                Constants.LinearSlide.slideKP,
+                Constants.LinearSlide.slideKI,
+                Constants.LinearSlide.slideKD,
+                Constants.LinearSlide.constraints);
+
+        this.slide.setInverted(false);
+
+        this.slide.setRunMode(Motor.RunMode.PositionControl);
+
+        this.flipper.setRunMode(Motor.RunMode.PositionControl);
+        this.flipper.setPositionCoefficient(Constants.LinearSlide.flipperKP);
     }
 
-    public Command toPosition(Position position) {
+    public double getSlidePosition() {
+        return this.slide.getDistance();
+    }
+
+    public double getFlipperPosition() {
+        return this.flipper.getDistance();
+    }
+
+    public Command toPosition(Constants.LinearSlide.Position position) {
+        return toPosition(position.getSlideHeightCentimeters(), position.getFlipperPosition());
+    }
+
+    public Command toPosition(double slide, Constants.LinearSlide.FlipperPosition flipperPosition) {
         return new ProfiledPIDCommand(
                 this.controller,
                 this.slide::getDistance,
-                position::getSlideHeightMeters,
-                (output, state) -> this.slide.set(MathUtils.clamp(output, -1, 1)),
-                this).alongWith(new InstantCommand(() -> this.flipper.setPosition(position.flipperPosition)));
+                slide,
+                (output, state) -> {
+                    telemetry.addData("error", controller.getPositionError());
+                    telemetry.addData("output", output);
+                    this.slide.set(MathUtils.clamp(output, -0.5, 0.5));
+                },
+                this).alongWith(new InstantCommand(() -> {
+            this.flipper.setTargetDistance(flipperPosition.getPosition());
+//            this.flipper.set(0.2);
+        })).interruptOn(this.flipper::atTargetPosition).whenFinished(() -> this.flipper.set(0));
     }
 
-    public enum Position {
-        HIGH(),
-        MID(),
-        LOW(),
-        GROUND();
+    public void moveIntake(double position) {
+//        intake.setPosition(position);
+    }
 
-        private double slideHeightMeters;
-        private double flipperPosition;
+    public void closeClaw() {
 
-        Position(double slideHeightMeters, double flipperPosition) {
-            this.slideHeightMeters = slideHeightMeters;
-            this.flipperPosition = flipperPosition;
-        }
+    }
 
-        public double getSlideHeightMeters() {
-            return this.slideHeightMeters;
-        }
+    public void openClaw() {}
+
+    public void setPosition(Constants.LinearSlide.Position position) {
+        setPosition(position.getSlideHeightCentimeters(), position.getFlipperPosition());
+    }
+
+    public void setPosition(double slide, Constants.LinearSlide.FlipperPosition flipperPosition) {
+        targetSlide = slide;
+        this.slide.setTargetDistance(slide);
+        this.flipper.setTargetDistance(flipperPosition.getPosition());
+    }
+
+    public void resetLift() {
+        this.slide.resetEncoder();
+        this.flipper.resetEncoder();
+    }
+
+    public MotorEx getSlide() {
+        return slide;
+    }
+
+    public MotorEx getFlipper() {
+        return flipper;
+    }
+
+    @Override
+    public void periodic() {
+        slide.set(0.2);
+        flipper.set(0.2);
     }
 }

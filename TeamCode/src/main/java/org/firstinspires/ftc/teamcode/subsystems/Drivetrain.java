@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -16,6 +17,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
@@ -36,22 +38,26 @@ public class Drivetrain extends SubsystemBase {
 
     private DriveMode mode = DriveMode.NORMAL;
 
-    public Drivetrain(HardwareMap hardwareMap) {
+    private Telemetry telemetry;
+
+    public Drivetrain(HardwareMap hardwareMap, Telemetry telemetry) {
         this.frontLeft = new MotorEx(hardwareMap, "FrontLeft", Motor.GoBILDA.RPM_312);
         this.frontRight = new MotorEx(hardwareMap, "FrontRight", Motor.GoBILDA.RPM_312);
         this.backLeft = new MotorEx(hardwareMap, "BackLeft", Motor.GoBILDA.RPM_312);
         this.backRight = new MotorEx(hardwareMap, "BackRight", Motor.GoBILDA.RPM_312);
 
+        this.telemetry = telemetry;
+
         // TODO: ensure this works
         this.gyro = hardwareMap.get(IMU.class, "imu");
 
         gyro.initialize(
-                new IMU.Parameters(
-                        new RevHubOrientationOnRobot(
-                                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT // TODO: confirm
-                        )
+            new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.RIGHT // TODO: confirm
                 )
+            )
         );
 
         this.frontLeft.setDistancePerPulse(Constants.Drivetrain.metersPerTick);
@@ -81,22 +87,32 @@ public class Drivetrain extends SubsystemBase {
         );
         Rotation2d heading = Rotation2d.fromDegrees(getHeadingDegrees());
 
+        telemetry.addData("rotation", getHeadingDegrees());
+        telemetry.addData("forward", odometry.getPoseMeters().getX());
+        telemetry.addData("sideways", odometry.getPoseMeters().getY());
+
         this.odometry.updateWithTime(this.timer.time(), heading, speeds);
 
     }
 
     public double getHeading() {
-        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS); // TODO: may need a negative to ensure CCW-positive
+        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     public double getHeadingDegrees() {
-        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES); // TODO: may need a negative to ensure CCW-positive
+        return this.gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        this.odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeadingDegrees()));
     }
 
     public Command teleopDrive(GamepadEx gamepad) {
         return new RunCommand(
-                () -> this.drive.driveFieldCentric(gamepad.getLeftX() * mode.multiplier, gamepad.getLeftY() * mode.multiplier, gamepad.getRightX() * mode.multiplier, getHeadingDegrees()),
-                this
+            () -> {
+                this.drive.driveFieldCentric(-gamepad.getLeftX() * mode.multiplier, -gamepad.getLeftY() * mode.multiplier, -gamepad.getRightX() * mode.multiplier, getHeadingDegrees());
+            },
+            this
         );
     }
 
@@ -120,8 +136,20 @@ public class Drivetrain extends SubsystemBase {
         return backRight;
     }
 
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public MecanumDriveKinematics getKinematics() {
+        return kinematics;
+    }
+
+    public IMU getGyro() {
+        return gyro;
+    }
+
     public enum DriveMode {
-        NORMAL(1),
+        NORMAL(0.75),
         SLOW(0.5);
 
         private final double multiplier;

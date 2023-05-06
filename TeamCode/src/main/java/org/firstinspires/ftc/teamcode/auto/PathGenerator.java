@@ -22,9 +22,12 @@ import com.arcrobotics.ftclib.purepursuit.waypoints.InterruptWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.PointTurnWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.StartWaypoint;
 import com.arcrobotics.ftclib.trajectory.Trajectory;
+import com.arcrobotics.ftclib.trajectory.TrajectoryConfig;
+import com.arcrobotics.ftclib.trajectory.TrajectoryGenerator;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.FollowMecanumCommand;
 import org.firstinspires.ftc.teamcode.commands.FollowPathsCommand;
 import org.firstinspires.ftc.teamcode.commands.InterruptCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -101,6 +104,10 @@ public class PathGenerator {
         return new FollowPathsCommand(drive,odometry, generatePath(parkPosition, side));
     }
 
+    public static Command generateMecanumCommand(Drivetrain drivetrain, AutoParkPosition parkPosition, Side side) {
+        return new FollowMecanumCommand(drivetrain, generateMecanumPaths(parkPosition, side));
+    }
+
     public static List<Path> generatePath(AutoParkPosition parkPosition, Side side) {
         List<Path> paths = new ArrayList<>();
         Path p = new Path();
@@ -161,6 +168,32 @@ public class PathGenerator {
         }
 
         return paths;
+    }
+
+    public static List<MecanumControllerCommand> generateMecanumPaths(AutoParkPosition parkPosition, Side side) {
+        return new ArrayList<>();
+    }
+
+    public static Trajectory generateTrajectory(Pose2d start, List<Translation2d> translations, Pose2d end, boolean reversed) {
+        return TrajectoryGenerator.generateTrajectory(start, translations, end, new TrajectoryConfig(1, 0.5).setReversed(reversed));
+    }
+
+    public static MecanumControllerCommand generateMecanumCommand(Drivetrain drivetrain, Pose2d start, List<Translation2d> translations, Pose2d end, boolean reversed) {
+        return new MecanumControllerCommand(
+                generateTrajectory(start, translations, end, reversed),
+                drivetrain::getPose,
+                drivetrain.getKinematics(),
+                new PIDController(1, 0, 0),
+                new PIDController(1, 0, 0),
+                new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI)),
+                1.0,
+                (speeds) -> {
+                    drivetrain.getFrontLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontLeftMetersPerSecond)); // TODO: figure out conversion from m/s to ticks/sec
+                    drivetrain.getFrontRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontRightMetersPerSecond));
+                    drivetrain.getBackLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearLeftMetersPerSecond));
+                    drivetrain.getBackRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearRightMetersPerSecond));
+                }
+        );
     }
 
     public enum AutoParkPosition {

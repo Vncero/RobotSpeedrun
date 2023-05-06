@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import com.arcrobotics.ftclib.command.CommandOpMode;
-
 import org.firstinspires.ftc.teamcode.CommandRobot;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,10 +12,13 @@ public class TeleOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        m_robot = new CommandRobot(hardwareMap, gamepad1, gamepad2);
+        m_robot = new CommandRobot(hardwareMap, gamepad1, gamepad2, telemetry);
+
+        waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
             m_robot.run();
+            telemetry.update();
         }
         m_robot.reset();
     }

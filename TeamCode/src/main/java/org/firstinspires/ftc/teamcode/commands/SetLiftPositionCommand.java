@@ -3,21 +3,18 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Lift;
-
-import java.util.Set;
 
 public class SetLiftPositionCommand extends CommandBase {
 
-    private Lift lift;
+    private org.firstinspires.ftc.teamcode.subsystems.Lift lift;
     private double lsPos;
-    private Constants.LinearSlide.FlipperPosition flipperPosition;
+    private Constants.Lift.FlipperPosition flipperPosition;
 
-    public SetLiftPositionCommand(Lift lift, Constants.LinearSlide.Position position) {
+    public SetLiftPositionCommand(org.firstinspires.ftc.teamcode.subsystems.Lift lift, Constants.Lift.Position position) {
         this(lift, position.getSlideHeightCentimeters(), position.getFlipperPosition());
     }
 
-    public SetLiftPositionCommand(Lift lift, double ls, Constants.LinearSlide.FlipperPosition flipperPosition) {
+    public SetLiftPositionCommand(org.firstinspires.ftc.teamcode.subsystems.Lift lift, double ls, Constants.Lift.FlipperPosition flipperPosition) {
         this.lift = lift;
         this.lsPos = ls;
         this.flipperPosition = flipperPosition;

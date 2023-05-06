@@ -13,6 +13,8 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveOdometry;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -72,8 +74,8 @@ public class Drivetrain extends SubsystemBase {
                 Constants.Drivetrain.backLeftWheelMeters,
                 Constants.Drivetrain.backRightWheelMeters
         );
-        this.odometry = new MecanumDriveOdometry(kinematics, new Rotation2d(gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
 
+        this.odometry = new MecanumDriveOdometry(kinematics, new Rotation2d(gyro.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
         this.timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     }
 
@@ -90,6 +92,7 @@ public class Drivetrain extends SubsystemBase {
         telemetry.addData("rotation", getHeadingDegrees());
         telemetry.addData("forward", odometry.getPoseMeters().getX());
         telemetry.addData("sideways", odometry.getPoseMeters().getY());
+        telemetry.addData("mode", this.mode == DriveMode.NORMAL ? "normal" : "slow");
 
         this.odometry.updateWithTime(this.timer.time(), heading, speeds);
 
@@ -109,9 +112,11 @@ public class Drivetrain extends SubsystemBase {
 
     public Command teleopDrive(GamepadEx gamepad) {
         return new RunCommand(
-            () -> {
-                this.drive.driveFieldCentric(-gamepad.getLeftX() * mode.multiplier, -gamepad.getLeftY() * mode.multiplier, -gamepad.getRightX() * mode.multiplier, getHeadingDegrees());
-            },
+            () -> this.drive.driveRobotCentric(
+                    -gamepad.getLeftX() * mode.getMultiplier(),
+                    -gamepad.getLeftY() * mode.getMultiplier(),
+                    -gamepad.getRightX() * mode.getMultiplier(),
+                    false),
             this
         );
     }
@@ -148,13 +153,30 @@ public class Drivetrain extends SubsystemBase {
         return gyro;
     }
 
-    public void forward(double meters){
+    public void setPower(double flPower, double frPower, double blPower, double brPower){
+        frontLeft.set(flPower);
+        frontRight.set(frPower);
+        backLeft.set(blPower);
+        backRight.set(brPower);
+    }
 
+    public void setTargetPose(double targetPose){
+        frontLeft.setTargetDistance(targetPose * Constants.Drivetrain.ticksPerMeter);
+        frontRight.setTargetDistance(targetPose* Constants.Drivetrain.ticksPerMeter);
+        backLeft.setTargetDistance(targetPose* Constants.Drivetrain.ticksPerMeter);
+        backRight.setTargetDistance(targetPose* Constants.Drivetrain.ticksPerMeter);
+    }
+
+    public void setKP(double kp){
+        frontLeft.setPositionCoefficient(kp);
+        frontRight.setPositionCoefficient(kp);
+        backLeft.setPositionCoefficient(kp);
+        backRight.setPositionCoefficient(kp);
     }
 
     public enum DriveMode {
         NORMAL(0.75),
-        SLOW(0.5);
+        SLOW(0.321);
 
         private final double multiplier;
         DriveMode(double multiplier) {
@@ -164,5 +186,12 @@ public class Drivetrain extends SubsystemBase {
         public double getMultiplier() {
             return multiplier;
         }
+    }
+
+    public void setRunMode(Motor.RunMode mode) {
+        frontLeft.setRunMode(mode);
+        frontRight.setRunMode(mode);
+        backLeft.setRunMode(mode);
+        backRight.setRunMode(mode);
     }
 }

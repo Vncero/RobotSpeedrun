@@ -27,7 +27,6 @@ import org.firstinspires.ftc.teamcode.commands.FollowPathsCommand;
 import org.firstinspires.ftc.teamcode.commands.InterruptCommand;
 import org.firstinspires.ftc.teamcode.commands.PickupCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.util.Units;
 
 import java.util.ArrayList;
@@ -83,7 +82,7 @@ public class PathGenerator {
         return new FollowPathsCommand(drive,odometry, generatePath(parkPosition, side));
     }
 
-    public static Command generateMecanumCommand(Drivetrain drivetrain, Lift lift, AutoParkPosition parkPosition, Side side) {
+    public static Command generateMecanumCommand(Drivetrain drivetrain, org.firstinspires.ftc.teamcode.subsystems.Lift lift, AutoParkPosition parkPosition, Side side) {
         return generateMecanumCommand(drivetrain, Arrays.asList(
                 new Pose2d( // initial position
                         new Translation2d(Constants.Drivetrain.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
@@ -97,7 +96,7 @@ public class PathGenerator {
                         new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
                         Rotation2d.fromDegrees(90 * side.getMultiplier())
                 )), false)
-                .andThen(new PickupCommand(lift, Constants.LinearSlide.Position.GROUND));
+                .andThen(new PickupCommand(lift, Constants.Lift.Position.GROUND));
     }
 
     public static List<Path> generatePath(AutoParkPosition parkPosition, Side side) {

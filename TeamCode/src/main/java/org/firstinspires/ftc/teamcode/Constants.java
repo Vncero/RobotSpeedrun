@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
-import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
-import com.arcrobotics.ftclib.trajectory.TrapezoidProfile.Constraints;
 
 import org.firstinspires.ftc.teamcode.util.Units;
 
@@ -42,7 +40,7 @@ public class Constants {
         );
     }
 
-    public static class LinearSlide {
+    public static class Lift {
         public static final double ticksPerMotorRotation = 537.7;
 
         public static final double spoolDiameter = 0.03225; // Units.inchesToMeters(1.75);
@@ -52,16 +50,10 @@ public class Constants {
         public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (spoolDiameter * Math.PI);
         public static final double metersPerTick = 1/ticksPerMeter;
 
-        public static double flipperKP = 0.01;
+        public static double flipperKP = 0.0008;
+        public static double flipperKFF = 0.000085;
 
         public static double slideKP = 0.05;
-        public static double slideKI = 0;
-        public static double slideKD = 0;
-
-        public static double maxVelocity = 1;
-        public static double maxAcceleration = 0.5;
-
-        public static TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(maxVelocity ,maxAcceleration);
 
         public enum Position {
             HIGH(870, FlipperPosition.UP),
@@ -70,8 +62,8 @@ public class Constants {
             TRANSPORT(50, FlipperPosition.DOWN),
             GROUND(0, FlipperPosition.DOWN);
 
-            private double slideHeightCentimeters;
-            private FlipperPosition flipperPosition;
+            private final double slideHeightCentimeters;
+            private final FlipperPosition flipperPosition;
 
             Position(double slideHeightCentimeters, FlipperPosition flipperPosition) {
                 this.slideHeightCentimeters = slideHeightCentimeters;
@@ -87,16 +79,30 @@ public class Constants {
         }
 
         public enum FlipperPosition {
-            UP(269),
+            UP(1800),
             DOWN(0);
 
-            private double position;
+            private final double position;
             FlipperPosition(double position) {
                 this.position = position;
             }
 
             public double getPosition() {
-                return position;
+                return this.position;
+            }
+        }
+
+        public enum IntakePosition {
+            OPEN(0.75),
+            CLOSED(0.25);
+
+            private final double position;
+            IntakePosition(double position) {
+                this.position = position;
+            }
+
+            public double getPosition() {
+                return this.position;
             }
         }
     }

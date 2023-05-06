@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
 public class OuttakeCommand extends SequentialCommandGroup {
-    public OuttakeCommand(Lift lift, Constants.LinearSlide.Position position) {
-        super(new SetLiftPositionCommand(lift, position), new InstantCommand(lift::openClaw), new WaitCommand(500));
+    public OuttakeCommand(Lift lift, Constants.Lift.Position position) {
+//        super(new SetLiftPositionCommand(lift, position), new InstantCommand(lift::openClaw), new WaitCommand(500));
     }
 }

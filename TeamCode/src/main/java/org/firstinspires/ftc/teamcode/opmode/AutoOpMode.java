@@ -1,19 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
-import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.CommandRobot;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.auto.PathGenerator;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Autonomous
 public class AutoOpMode extends LinearOpMode {

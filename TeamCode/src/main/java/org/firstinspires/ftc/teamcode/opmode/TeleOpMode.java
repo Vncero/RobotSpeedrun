@@ -18,6 +18,10 @@ public class TeleOpMode extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             m_robot.run();
+            telemetry.addData("flipper target position", m_robot.getLift().flipperPosition);
+            telemetry.addData("flipper kP: ", m_robot.getLift().getFlipper().getPositionCoefficient());
+            telemetry.addData("flipper output: ", m_robot.getLift().getFlipper().motor.getPower());
+            telemetry.addData("flipper encoder ticks: ", m_robot.getLift().getFlipper().encoder.getPosition());
             telemetry.update();
         }
         m_robot.reset();

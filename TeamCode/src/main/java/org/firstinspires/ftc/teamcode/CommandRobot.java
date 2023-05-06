@@ -23,6 +23,7 @@ public class CommandRobot extends Robot {
     private final Lift lift;
 
     private Constants.LinearSlide.Position position;
+    private Constants.LinearSlide.FlipperPosition flipperPosition;
 
     private Telemetry telemetry;
 
@@ -32,6 +33,7 @@ public class CommandRobot extends Robot {
         this.telemetry = telemetry;
 
         this.position = Constants.LinearSlide.Position.GROUND;
+        this.flipperPosition = Constants.LinearSlide.FlipperPosition.DOWN;
 
         // instantiate subsystems & set default commands
         this.drivetrain = new Drivetrain(hardwareMap, telemetry);
@@ -55,6 +57,9 @@ public class CommandRobot extends Robot {
         new Trigger(() -> driverGamepad.b).whenActive(new InstantCommand(() -> lift.setPosition(Constants.LinearSlide.Position.LOW)));
         new Trigger(() -> driverGamepad.x).whenActive(new InstantCommand(() -> lift.setPosition(Constants.LinearSlide.Position.MID)));
         new Trigger(() -> driverGamepad.y).whenActive(new InstantCommand(() -> lift.setPosition(Constants.LinearSlide.Position.HIGH)));
+
+
+
 
 //        this.driverGamepad.getGamepadButton(GamepadKeys.Button.A)
 //                .toggleWhenPressed(() -> this.position = Constants.LinearSlide.Position.GROUND, () -> this.position = Constants.LinearSlide.Position.HIGH);

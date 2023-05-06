@@ -14,11 +14,11 @@ public class Constants {
     public static class Drivetrain {
 
         // TODO: do
-        public static final double trackwidth = 0; // just the wheels
-        public static final double wheelbase = 0;
+        public static final double trackwidth = Units.inchesToMeters(13.25); // just the wheels
+        public static final double wheelbase = Units.inchesToMeters(9.5);  
 
-        public static final double realTrackwidth = 0; // the actual dimensions of robot
-        public static final double realWheelbase = 0; // the actual dimensions of robot
+        public static final double realTrackwidth = Units.inchesToMeters(14.5); // the actual dimensions of robot
+        public static final double realWheelbase = Units.inchesToMeters(15); // the actual dimensions of robot
 
         public static final double ticksPerMotorRotation = 537.7;
 
@@ -52,7 +52,7 @@ public class Constants {
         public static final double ticksPerMeter = (ticksPerMotorRotation * gearReduction) / (spoolDiameter * Math.PI);
         public static final double metersPerTick = 1/ticksPerMeter;
 
-        public static double flipperKP = 0;
+        public static double flipperKP = 0.0009;
 
         public static double slideKP = 0.05;
         public static double slideKI = 0;

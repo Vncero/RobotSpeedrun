@@ -34,6 +34,8 @@ public class Lift extends SubsystemBase {
 
     public double targetSlide = 0;
 
+    public double flipperPosition = 0;
+
     public Lift(HardwareMap hardwareMap, Telemetry telemetry) {
         this.slide = new MotorEx(hardwareMap, "slide", Motor.GoBILDA.RPM_435);
         this.flipper = new MotorEx(hardwareMap, "flipper", Motor.GoBILDA.RPM_312);
@@ -63,6 +65,7 @@ public class Lift extends SubsystemBase {
 
         this.flipper.setRunMode(Motor.RunMode.PositionControl);
         this.flipper.setPositionCoefficient(Constants.LinearSlide.flipperKP);
+        this.flipper.resetEncoder();
     }
 
     public double getSlidePosition() {
@@ -110,6 +113,7 @@ public class Lift extends SubsystemBase {
     public void setPosition(double slide, Constants.LinearSlide.FlipperPosition flipperPosition) {
         targetSlide = slide;
         this.slide.setTargetDistance(slide);
+        this.flipperPosition = flipperPosition.getPosition();
         this.flipper.setTargetDistance(flipperPosition.getPosition());
     }
 
@@ -134,9 +138,20 @@ public class Lift extends SubsystemBase {
         return this.flipper.atTargetPosition();
     }
 
+//    public double getFlipperOutput(){
+//        return this.flipper.get
+//    }
+    public void setFlipperPower(){
+        flipper.set(0.03);
+    }
+
+    public void setFlipperPowerR(){
+        flipper.set(-0.03);
+    }
+
     @Override
     public void periodic() {
-        slide.set(0.2);
-        flipper.set(0.2);
+        slide.set(0.15);
+        flipper.set(-0.05);
     }
 }

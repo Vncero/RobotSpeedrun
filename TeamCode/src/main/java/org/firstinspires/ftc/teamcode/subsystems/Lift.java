@@ -46,8 +46,8 @@ public class Lift extends SubsystemBase {
         this.slide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         this.flipper.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        slide.setPositionTolerance(2); // centimeters
-        flipper.setPositionTolerance(2); // ticks
+        slide.setPositionTolerance(25); // ticks
+        flipper.setPositionTolerance(25); // ticks
 
         slide.setPositionCoefficient(Constants.LinearSlide.slideKP);
 
@@ -124,6 +124,14 @@ public class Lift extends SubsystemBase {
 
     public MotorEx getFlipper() {
         return flipper;
+    }
+
+    public boolean slideAtPosition() {
+        return this.slide.atTargetPosition();
+    }
+
+    public boolean flipperAtPosition() {
+        return this.flipper.atTargetPosition();
     }
 
     @Override

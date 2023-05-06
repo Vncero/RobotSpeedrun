@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.RunCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.CommandRobot;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -34,6 +35,8 @@ public class LSTuner extends LinearOpMode {
             telemetry.addData("flipper", m_robot.getLift().getFlipper().encoder.getPosition());
 //            telemetry.addData()
             telemetry.addData("setpoint", m_robot.getLift().targetSlide);
+            telemetry.addData("slide at target: ", m_robot.getLift().slideAtPosition());
+            telemetry.addData("flipper at target: ", m_robot.getLift().flipperAtPosition());
             telemetry.update();
         }).alongWith(new RunCommand(() -> m_robot.getLift().setPosition(position, Constants.LinearSlide.FlipperPosition.DOWN))));
 

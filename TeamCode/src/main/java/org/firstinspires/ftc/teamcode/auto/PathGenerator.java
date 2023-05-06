@@ -2,10 +2,6 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.MecanumControllerCommand;
-import com.arcrobotics.ftclib.command.OdometrySubsystem;
-import com.arcrobotics.ftclib.command.PurePursuitCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
@@ -27,13 +23,15 @@ import com.arcrobotics.ftclib.trajectory.TrajectoryGenerator;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.commands.FollowMecanumCommand;
 import org.firstinspires.ftc.teamcode.commands.FollowPathsCommand;
 import org.firstinspires.ftc.teamcode.commands.InterruptCommand;
+import org.firstinspires.ftc.teamcode.commands.PickupCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.util.Units;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -81,31 +79,25 @@ public class PathGenerator {
         );
     }
 
-    // pure pursuit fails, use this
-    public static MecanumControllerCommand generateMecanumCommand(Drivetrain drivetrain, Trajectory trajectory, Pose2d desiredPose) {
-        return new MecanumControllerCommand(
-                trajectory,
-                () -> desiredPose,
-                Constants.Drivetrain.kinematics,
-                new PIDController(1, 0, 0),
-                new PIDController(1, 0, 0),
-                new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(2 * Math.PI, Math.PI)),
-        1.0,
-                (speeds) -> {
-                    drivetrain.getFrontLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontLeftMetersPerSecond)); // TODO: figure out conversion from m/s to ticks/sec
-                    drivetrain.getFrontRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.frontRightMetersPerSecond));
-                    drivetrain.getBackLeft().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearLeftMetersPerSecond));
-                    drivetrain.getBackRight().motorEx.setVelocity(Units.metersToWheelTicks(speeds.rearRightMetersPerSecond));
-                }
-        );
-    }
-
     public static Command generatePursuitCommand(MecanumDrive drive, Odometry odometry, AutoParkPosition parkPosition, Side side) {
         return new FollowPathsCommand(drive,odometry, generatePath(parkPosition, side));
     }
 
-    public static Command generateMecanumCommand(Drivetrain drivetrain, AutoParkPosition parkPosition, Side side) {
-        return new FollowMecanumCommand(drivetrain, generateMecanumPaths(parkPosition, side));
+    public static Command generateMecanumCommand(Drivetrain drivetrain, Lift lift, AutoParkPosition parkPosition, Side side) {
+        return generateMecanumCommand(drivetrain, Arrays.asList(
+                new Pose2d( // initial position
+                        new Translation2d(Constants.Drivetrain.realWheelbase / 2, Units.tilesToMeters(-3 * side.getMultiplier())),
+                        new Rotation2d()
+                ),
+                new Pose2d( // transition to cone
+                        new Translation2d(Units.tilesToMeters(2.5), Units.tilesToMeters(-3 * side.getMultiplier())),
+                        Rotation2d.fromDegrees(90 * side.getMultiplier())
+                ),
+                new Pose2d( // going to get cone
+                        new Translation2d(Units.tilesToMeters(2.5), -Constants.Drivetrain.realWheelbase / 2 * side.getMultiplier()),
+                        Rotation2d.fromDegrees(90 * side.getMultiplier())
+                )), false)
+                .andThen(new PickupCommand(lift, Constants.LinearSlide.Position.GROUND));
     }
 
     public static List<Path> generatePath(AutoParkPosition parkPosition, Side side) {
@@ -170,17 +162,13 @@ public class PathGenerator {
         return paths;
     }
 
-    public static List<MecanumControllerCommand> generateMecanumPaths(AutoParkPosition parkPosition, Side side) {
-        return new ArrayList<>();
+    public static Trajectory generateTrajectory(List<Pose2d> waypoints, boolean reversed) {
+        return TrajectoryGenerator.generateTrajectory(waypoints, new TrajectoryConfig(1, 0.5).setReversed(reversed));
     }
 
-    public static Trajectory generateTrajectory(Pose2d start, List<Translation2d> translations, Pose2d end, boolean reversed) {
-        return TrajectoryGenerator.generateTrajectory(start, translations, end, new TrajectoryConfig(1, 0.5).setReversed(reversed));
-    }
-
-    public static MecanumControllerCommand generateMecanumCommand(Drivetrain drivetrain, Pose2d start, List<Translation2d> translations, Pose2d end, boolean reversed) {
+    public static MecanumControllerCommand generateMecanumCommand(Drivetrain drivetrain, List<Pose2d> poses, boolean reversed) {
         return new MecanumControllerCommand(
-                generateTrajectory(start, translations, end, reversed),
+                generateTrajectory(poses, reversed),
                 drivetrain::getPose,
                 drivetrain.getKinematics(),
                 new PIDController(1, 0, 0),

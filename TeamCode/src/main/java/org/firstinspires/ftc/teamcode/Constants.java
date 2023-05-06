@@ -67,6 +67,7 @@ public class Constants {
             HIGH(870, FlipperPosition.UP),
             MID(190, FlipperPosition.UP),
             LOW(1060, FlipperPosition.DOWN),
+            TRANSPORT(50, FlipperPosition.DOWN),
             GROUND(0, FlipperPosition.DOWN);
 
             private double slideHeightCentimeters;

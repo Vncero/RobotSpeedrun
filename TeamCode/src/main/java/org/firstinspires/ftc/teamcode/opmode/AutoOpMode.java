@@ -7,11 +7,13 @@ import com.arcrobotics.ftclib.geometry.Translation2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.teamcode.CommandRobot;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.auto.PathGenerator;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Autonomous
 public class AutoOpMode extends LinearOpMode {
@@ -22,9 +24,7 @@ public class AutoOpMode extends LinearOpMode {
         m_robot = new CommandRobot(hardwareMap, gamepad1, gamepad2, telemetry);
 
         PathGenerator.generateMecanumCommand(m_robot.getDrivetrain(),
-                new Pose2d(0, 0, new Rotation2d()),
-                List.of(new Translation2d(0, 1)),
-                new Pose2d(0, 2, new Rotation2d()), false
+                Arrays.asList(new Pose2d(0, 0, new Rotation2d()), new Pose2d(0, 2, new Rotation2d())), false
         ).schedule();
 
 //        cmd.alongWith(m_robot.getLift().toPosition(Constants.LinearSlide.Position.HIGH));
